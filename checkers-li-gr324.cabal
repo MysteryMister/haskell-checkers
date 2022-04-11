@@ -26,8 +26,12 @@ source-repository head
 library
   exposed-modules:
       Checkers
+      ConfigBoard
       Constants
+      GameFlow
+      Logic
       Types
+      Visuals
   other-modules:
       Paths_checkers_li_gr324
   hs-source-dirs:
@@ -43,7 +47,7 @@ executable checkers-li-gr324-exe
       Paths_checkers_li_gr324
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , checkers-li-gr324
