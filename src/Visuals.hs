@@ -1,7 +1,6 @@
 module Visuals where
 
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
 
 import Constants
 import Types
@@ -9,36 +8,34 @@ import Types
 
 --drawing game board
 drawBoard :: GameConfig -> Picture
-drawBoard (GameConfig _ _ _ _ team _ _ _ _ _ _ GameOver  _ _) = 
-    Translate (-360) 0 (Color red (Text (show team ++ " lost!")))
+drawBoard (GameConfig _ _ _ _ activeTeam _ _ _ _ _ _ GameOver  _ _) = 
+    Translate (-360) 0 (Color red (Text (show activeTeam ++ " lost!")))
 drawBoard (GameConfig _ _ _ _ _ _ _ _ _ _ _ Stalemate  _ _) =
     Translate (-350) 0 (Color red (Text "Stalemate!"))
 drawBoard (GameConfig 
-    board boardPicture whites blacks 
-    team _ Nothing _ _ _ _ _ count _) = 
+    fullBoard boardPicture _ _ activeTeam _ Nothing _ _ _ _ _ count _) = 
         Pictures (
             [Scale 0.65 0.65 boardPicture] 
-            ++ drawFigures board 
-            ++ drawTeamTurn team 
+            ++ drawFigures fullBoard 
+            ++ drawTeamTurn activeTeam 
             ++ drawSpareCount count)
 drawBoard (GameConfig 
-    board boardPicture whites blacks 
-    team _ (Just cell) _ _ _ _ _ count _) =
+    fullBoard boardPicture _ _ activeTeam _ (Just cell) _ _ _ _ _ count _) =
         Pictures (
             [Scale 0.65 0.65 boardPicture] 
-            ++ drawFigures board 
+            ++ drawFigures fullBoard 
             ++ drawChosenFigure cell 
-            ++ drawTeamTurn team 
+            ++ drawTeamTurn activeTeam 
             ++ drawSpareCount count)
 
 --drawing figures
 drawFigures :: Board -> [Picture]
 drawFigures [] = []
-drawFigures ((CheckerCell (x, y) (Just (Figure _ image _ _ _)) _) : xs) = 
+drawFigures ((CheckerCell (x, y) (Just (Figure _ img _ _ _)) _) : xs) = 
     Scale 0.3 0.3 (Translate 
         (leftCenter + xOffset * fromIntegral (x-1))  
         (bottomBound + yOffset * fromIntegral (y-1))
-        image)
+        img)
     : drawFigures xs
 drawFigures ((CheckerCell _ Nothing _) : xs) = drawFigures xs
 

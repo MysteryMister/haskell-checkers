@@ -36,6 +36,7 @@ library
       Paths_checkers_li_gr324
   hs-source-dirs:
       src
+  ghc-options: -Wall -Werror
   build-depends:
       base >=4.7 && <5
     , gloss

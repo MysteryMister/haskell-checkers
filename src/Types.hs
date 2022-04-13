@@ -1,7 +1,6 @@
 module Types where
 
 import Graphics.Gloss.Interface.Pure.Game
-import Graphics.Gloss
 
 
 --team: white and black

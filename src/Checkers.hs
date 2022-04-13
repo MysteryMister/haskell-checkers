@@ -48,7 +48,7 @@ handleEvent :: Event -> GameConfig -> GameConfig
 handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) config
     | gameState config == InProgress = updateConfig (checkCoordinates (x, y) config)
     | otherwise = config
-handleEvent (EventKey (SpecialKey KeySpace) Down _ (x, y)) config = restart config
+handleEvent (EventKey (SpecialKey KeySpace) Down _ _) config = restart config
 handleEvent _ config = config
 
 --config update
@@ -163,8 +163,8 @@ changeChosenFigure (Just cell) config = if clickOwnCell cell config
 --checking if clicked on your own cell
 clickOwnCell :: CheckerCell -> GameConfig  -> Bool
 clickOwnCell (CheckerCell _ Nothing _) _ = False
-clickOwnCell (CheckerCell _ (Just figure) _) config = 
-    figureTeam figure == team config
+clickOwnCell (CheckerCell _ (Just fig) _) config = 
+    figureTeam fig == team config
 
 --getting attacking cell by its index
 getAttackerCell :: (Int, Int) -> Board -> Maybe CheckerCell

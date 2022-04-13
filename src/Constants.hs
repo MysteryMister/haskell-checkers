@@ -1,7 +1,6 @@
 module Constants where
 
 import Graphics.Gloss.Interface.Pure.Game
-import Graphics.Gloss
 
 
 --board size

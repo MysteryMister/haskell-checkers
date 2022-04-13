@@ -1,7 +1,6 @@
 module GameFlow where
 
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
 
 import ConfigBoard
 import Constants
@@ -49,8 +48,7 @@ checkDefeat config
 --getting all cells with team's figures on them
 getTeamFigures :: Team -> Board -> Board 
 getTeamFigures _ [] = []
-getTeamFigures t1 ((CheckerCell (i, j) Nothing (x, y)) : xs) =
-    getTeamFigures t1 xs
+getTeamFigures t1 ((CheckerCell _ Nothing _) : xs) = getTeamFigures t1 xs
 getTeamFigures t1 ((CheckerCell (i, j) 
     (Just (Figure figType img t peaces attacks)) (x, y)) : xs)
     | t == t1 = cell : getTeamFigures t1 xs
@@ -79,29 +77,29 @@ manageSpareSteps config
 finishIteration :: GameConfig -> GameConfig 
 finishIteration 
     (GameConfig 
-        board boardImg whites blacks team 
+        fullBoard boardImg whites blacks activeTeam 
         movedFig (Just chosenFig) (Just newPos) 
         isForced peaces attacks state countLeft attackedChecker) = 
             if attackedChecker then
                 GameConfig 
-                    newBoard boardImg whites blacks team 
+                    newBoard boardImg whites blacks activeTeam 
                     (getCell (cellIndex newPos) newBoard) Nothing Nothing 
-                    (isNotEmptyAttackSteps team newBoard) 
+                    (isNotEmptyAttackSteps activeTeam newBoard) 
                     Nothing Nothing state countLeft
                     attackedChecker
             else        
                 GameConfig 
-                    newBoard boardImg whites blacks team 
+                    newBoard boardImg whites blacks activeTeam 
                     (getCell (cellIndex newPos) newBoard) Nothing Nothing 
-                    (isNotEmptyAttackSteps team newBoard) 
+                    (isNotEmptyAttackSteps activeTeam newBoard) 
                     Nothing Nothing state countLeft
                     (isAttackStepbyChecker (figure chosenFig) newPos)
             where
                 newBoard = formAllSteps 
-                    (updateBoard chosenFig newPos board config)
+                    (updateBoard chosenFig newPos fullBoard config)
                 config = 
                     GameConfig 
-                        board boardImg whites blacks team 
+                        fullBoard boardImg whites blacks activeTeam 
                         movedFig (Just chosenFig) (Just newPos) 
                         isForced peaces attacks state 
                         countLeft attackedChecker
@@ -121,7 +119,7 @@ updateBoard
         (i1, j1) 
         (Just (Figure Checker img White peaces attacks)) 
         (x1, y1)) 
-    cell2 board config
+    cell2 fullBoard config
     | snd (cellIndex cell2) == 8 = checkerToQueen 
         (CheckerCell 
             (i1, j1) 
@@ -130,13 +128,13 @@ updateBoard
         cell2 
         (getPictureByIndex 2 (whitePics config))
         White 
-        board
+        fullBoard
 updateBoard 
     (CheckerCell 
         (i1, j1) 
         (Just (Figure Checker img Black peaces attacks)) 
         (x1, y1)) 
-    cell2 board config
+    cell2 fullBoard config
     | snd (cellIndex cell2) == 1 = checkerToQueen 
         (CheckerCell 
             (i1, j1) 
@@ -145,13 +143,13 @@ updateBoard
         cell2 
         (getPictureByIndex 2 (blackPics config))
         Black 
-        board      
-updateBoard cell1 cell2 board _ = makeStep cell1 cell2 board
+        fullBoard      
+updateBoard cell1 cell2 fullBoard _ = makeStep cell1 cell2 fullBoard
 
 --getting figure picture by its index from config
 getPictureByIndex :: Int -> [Picture] -> Picture
-getPictureByIndex 1 (img : xs) = img
-getPictureByIndex n (img : xs) = getPictureByIndex (n - 1) xs
+getPictureByIndex 1 (img : _) = img
+getPictureByIndex n (_ : xs) = getPictureByIndex (n - 1) xs
 getPictureByIndex _ [] =  
     Translate 530 (-300) (Scale 0.3 0.3 (Color red (Text "Image not found!")))
 
@@ -159,19 +157,19 @@ getPictureByIndex _ [] =
 checkerToQueen :: CheckerCell -> CheckerCell -> Picture -> 
     Team -> Board -> Board
 checkerToQueen _ _ _ _ [] = []
-checkerToQueen cell1 cell2 img team (cell : xs)
+checkerToQueen cell1 cell2 img activeTeam (cell : xs)
     | cellIndex cell == cellIndex cell1 = 
         CheckerCell 
             (cellIndex cell) 
             Nothing 
             (cellCoordinates cell) 
-        : checkerToQueen cell1 cell2 img team xs
+        : checkerToQueen cell1 cell2 img activeTeam xs
     | cellIndex cell == cellIndex cell2 = 
         CheckerCell 
             (cellIndex cell) 
-            (Just (Figure Queen img team [] [])) 
+            (Just (Figure Queen img activeTeam [] [])) 
             (cellCoordinates cell) 
-        : checkerToQueen cell1 cell2 img team xs
+        : checkerToQueen cell1 cell2 img activeTeam xs
     | (fst (cellIndex cell1) - fst (cellIndex cell2)) >= 2 
         && (snd (cellIndex cell1) - snd (cellIndex cell2)) >= 2 =
             if fst (cellIndex cell) == (fst (cellIndex cell2) + 1) 
@@ -181,9 +179,9 @@ checkerToQueen cell1 cell2 img team (cell : xs)
                     (cellIndex cell) 
                     Nothing 
                     (cellCoordinates cell) 
-                : checkerToQueen cell1 cell2 img team xs
+                : checkerToQueen cell1 cell2 img activeTeam xs
             else
-                cell : checkerToQueen cell1 cell2 img team xs
+                cell : checkerToQueen cell1 cell2 img activeTeam xs
     | (fst (cellIndex cell1) - fst (cellIndex cell2)) >= 2 
         && (snd (cellIndex cell1) - snd (cellIndex cell2)) <= (-2) =
             if fst (cellIndex cell) == (fst (cellIndex cell2) + 1) 
@@ -193,9 +191,9 @@ checkerToQueen cell1 cell2 img team (cell : xs)
                     (cellIndex cell) 
                     Nothing 
                     (cellCoordinates cell) 
-                : checkerToQueen cell1 cell2 img team xs
+                : checkerToQueen cell1 cell2 img activeTeam xs
             else
-                cell : checkerToQueen cell1 cell2 img team xs
+                cell : checkerToQueen cell1 cell2 img activeTeam xs
     | (fst (cellIndex cell1) - fst (cellIndex cell2)) <= (-2) 
         && (snd (cellIndex cell1) - snd (cellIndex cell2)) >= 2 =
             if fst (cellIndex cell) == (fst (cellIndex cell2) - 1) 
@@ -205,9 +203,9 @@ checkerToQueen cell1 cell2 img team (cell : xs)
                     (cellIndex cell) 
                     Nothing 
                     (cellCoordinates cell) 
-                : checkerToQueen cell1 cell2 img team xs
+                : checkerToQueen cell1 cell2 img activeTeam xs
             else
-                cell : checkerToQueen cell1 cell2 img team xs
+                cell : checkerToQueen cell1 cell2 img activeTeam xs
     | (fst (cellIndex cell1) - fst (cellIndex cell2)) <= (-2) 
         && (snd (cellIndex cell1) - snd (cellIndex cell2)) <= (-2) =
             if fst (cellIndex cell) == (fst (cellIndex cell2) - 1) 
@@ -217,10 +215,10 @@ checkerToQueen cell1 cell2 img team (cell : xs)
                     (cellIndex cell) 
                     Nothing 
                     (cellCoordinates cell) 
-                : checkerToQueen cell1 cell2 img team xs
+                : checkerToQueen cell1 cell2 img activeTeam xs
             else
-                cell : checkerToQueen cell1 cell2 img team xs
-    | otherwise  = cell : checkerToQueen cell1 cell2 img team xs
+                cell : checkerToQueen cell1 cell2 img activeTeam xs
+    | otherwise  = cell : checkerToQueen cell1 cell2 img activeTeam xs
 
 --moving figure (== 1 iteration)
 makeStep :: CheckerCell -> CheckerCell -> Board -> Board 

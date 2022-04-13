@@ -1,16 +1,14 @@
 module ConfigBoard where
 
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
 
-import Constants
 import Logic
 import Types
 
 
 --creating board: placing figures at starting positions
 createBoard :: [Picture] -> [Picture] -> Board -> Board
-createBoard p1 p2 [] = []
+createBoard _ _ [] = []
 createBoard 
     [wChecker, wQueen] 
     [bChecker, bQueen] 
@@ -29,15 +27,15 @@ createBoard
         where 
             p1 = [wChecker, wQueen]
             p2 = [bChecker, bQueen]
-createBoard p1 p2 lst = lst
+createBoard _ _ lst = lst
 
 --forming steps lists for all figures on board
 formAllSteps :: Board -> Board
-formAllSteps board = formTeamSteps (formTeamSteps board White) Black
+formAllSteps fullBoard = formTeamSteps (formTeamSteps fullBoard White) Black
 
 --forming team's steps lists
 formTeamSteps :: Board -> Team -> Board
-formTeamSteps board team = teamSteps team board board
+formTeamSteps fullBoard activeTeam = teamSteps activeTeam fullBoard fullBoard
 
 teamSteps :: Team -> Board -> Board -> Board
 teamSteps _ _ [] = []
