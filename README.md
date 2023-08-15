@@ -16,13 +16,13 @@
 ##### GUI
 Рассмотрим несколько сценариев игры.
 1. Начало партии.
-![1](https://github.com/MysteryMister/haskell-checkers/assets/24231731/2ce89789-815d-4a74-9703-bb1b5db408e0)
+![1](https://github.com/MysteryMister/haskell-checkers/assets/24231731/1703b04a-18ff-4e00-918a-ff80fc41d7a0)
 
 2. "Белые" прорвались сквозь оборону "черных" и заполучили свою первую дамку. Зеленой обводкой выделена фигура - текущий выбор игрока для хода.
-![2](https://github.com/MysteryMister/haskell-checkers/assets/24231731/790ed2a6-0269-4ba0-accd-cdfed678e855)
+![2](https://github.com/MysteryMister/haskell-checkers/assets/24231731/6faec65c-effd-48c2-b898-0c778097d854)
 
 3. Победа "черных".
-![3](https://github.com/MysteryMister/haskell-checkers/assets/24231731/b904b30b-7e27-4dc4-ab09-ad848b3ee305)
+![3](https://github.com/MysteryMister/haskell-checkers/assets/24231731/f604de52-aaea-4a82-932e-8306242a2f6b)
 
 ### Используемые библиотеки
 - **Gloss** – графический интерфейс и обработка внешних событий.
